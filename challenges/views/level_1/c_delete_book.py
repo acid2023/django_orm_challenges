@@ -13,7 +13,11 @@ from challenges.views.level_1.b_book_details import get_book
 
 
 def delete_book(book_id: int) -> None:
-    # код писать тут
+    try:
+        book = Book.objects.get(pk=book_id)
+        book.delete()
+    except:
+        return None
     pass
 
 

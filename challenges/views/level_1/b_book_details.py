@@ -15,6 +15,10 @@ from challenges.models import Book
 
 
 def get_book(book_id: int) -> Book | None:
+    try:
+        return Book.objects.get(pk=book_id)
+    except:
+        return None
     # код писать тут
     pass
 
