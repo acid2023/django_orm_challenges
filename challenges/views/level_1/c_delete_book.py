@@ -8,28 +8,25 @@
 """
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseNotAllowed
 
-from challenges.models import Book
 from challenges.views.level_1.b_book_details import get_book
 
 
-def delete_book(book_id: int) -> None:
-    try:
-        book = Book.objects.get(pk=book_id)
+def delete_book(book_id: int) -> str:
+    book = get_book(book_id)
+    if book is None:
+        return 'not found'
+    else:
         book.delete()
-    except:
-        return None
-    pass
+        return 'ok'
 
 
 def delete_book_handler(request: HttpRequest, book_id: int) -> HttpResponse:
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    book = get_book(book_id)
+    response = delete_book(book_id)
 
-    if book is None:
-        return HttpResponseNotFound()
-
-    delete_book(book_id)
-
-    return HttpResponse()
+    if response == 'not found':
+        return HttpResponseNotFound('there is no such record in database')
+    else:
+        return HttpResponse('records was deleted sucsessfully')

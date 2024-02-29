@@ -11,13 +11,11 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, JsonR
 
 from challenges.models import Book
 
-import json
-
 
 def update_book(book_id: int, new_title: str, new_author_full_name: str, new_isbn: str) -> Book | None:
     try:
         book = Book.objects.get(pk=book_id)
-    except:
+    except Book.DoesNotExist:
         return None
     book.title = new_title
     book.author_full_name = new_author_full_name
@@ -26,18 +24,18 @@ def update_book(book_id: int, new_title: str, new_author_full_name: str, new_isb
     return book
 
 
-def update_book_handler(request: HttpRequest, book_id: int) -> HttpResponse:
-    json_data = json.loads(request.body)
-    title = json_data.get("title")
-    author_full_name = json_data.get("author_full_name")
-    isbn = json_data.get("isbn")
-    if not all([title, author_full_name, isbn]):
-        return HttpResponseBadRequest("One of required parameters are missing")
+def update_book_handler(request: HttpRequest, book_id: int) -> HttpResponse | JsonResponse:
+    title = request.POST.get("title")
+    author_full_name = request.POST.get("author_full_name")
+    isbn = request.POST.get("isbn")
 
-    book = update_book(book_id, title, author_full_name, isbn)
+    if title is not None and author_full_name is not None and isbn is not None:
+        book = update_book(book_id, title, author_full_name, isbn)
+    else:
+        return HttpResponseBadRequest("One or more of the required parameters are missing")
 
     if book is None:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest('There is no such record in the database')
 
     return JsonResponse({
         "id": book.pk,
