@@ -13,22 +13,20 @@ from challenges.models import Book
 
 
 def create_book(title: str, author_full_name: str, isbn: str) -> Book:
-    # код писать тут
-    pass
+    new_book = Book(title=title, author_full_name=author_full_name, isbn=isbn)
+    new_book.save()
+    return new_book
 
 
 def create_book_handler(request: HttpRequest) -> HttpResponse:
     title = request.POST.get("title")
     author_full_name = request.POST.get("author_full_name")
     isbn = request.POST.get("isbn")
-    if not all([title, author_full_name, isbn]):
-        return HttpResponseBadRequest("One of required parameters are missing")
 
-    book = create_book(title, author_full_name, isbn)
+    if title is not None and author_full_name is not None and isbn is not None:
+        book = create_book(title, author_full_name, isbn)
+    else:
+        return HttpResponseBadRequest("One or more of the required parameters are missing")
 
-    return JsonResponse({
-        "id": book.pk,
-        "title": book.title,
-        "author_full_name": book.author_full_name,
-        "isbn": book.isbn,
-    })
+    return JsonResponse({"id": book.pk, "title": book.title,
+                         "author_full_name": book.author_full_name, "isbn": book.isbn})
