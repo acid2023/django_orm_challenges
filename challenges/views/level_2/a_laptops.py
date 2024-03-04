@@ -12,6 +12,7 @@
 - по очереди реализовать каждую из вьюх в этом файле, проверяя правильность их работу в браузере
 """
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, JsonResponse, HttpResponseForbidden
+
 from challenges.models import Laptop, LaptopBrand
 
 
@@ -33,13 +34,10 @@ def laptop_in_stock_list_view(request: HttpRequest) -> JsonResponse | HttpRespon
     В этой вьюхе вам нужно вернуть json-описание всех ноутбуков, которых на складе больше нуля.
     Отсортируйте ноутбуки по дате добавления, сначала самый новый.
     """
-    try:
-        laptops = Laptop.objects.filter(count__gt=0)  # sorting order by default is set in class Laptop Meta
-        response = {laptop.id: laptop.to_json() for laptop in laptops}
-        return JsonResponse(response)
-    except Laptop.DoesNotExist:
-        return HttpResponseNotFound('No db entries found')
-    pass
+
+    laptops = Laptop.objects.filter(count__gt=0)  # sorting order by default is set in class Laptop Meta
+    response = {laptop.id: laptop.to_json() for laptop in laptops}
+    return JsonResponse(response)
 
 
 def laptop_filter_view(request: HttpRequest) -> JsonResponse | HttpResponse:
@@ -82,8 +80,9 @@ def last_laptop_details_view(request: HttpRequest) -> JsonResponse | HttpRespons
     В этой вьюхе вам нужно вернуть json-описание последнего созданного ноутбука.
     Если ноутбуков нет вообще, вернуть 404.
     """
-    laptops = Laptop.objects.all()
-    if laptops is None:
+    try:
+        last_laptop = Laptop.objects.latest('created_at')
+        response = {'latest_laptop': last_laptop.to_json()}
+        return JsonResponse(response)
+    except Laptop.DoesNotExist:
         return HttpResponseNotFound('No db entries found')
-    last_laptop = laptops.latest('created_at')
-    return JsonResponse(last_laptop.to_json())

@@ -51,12 +51,17 @@ def last_posts_list_view(request: HttpRequest) -> HttpResponse | JsonResponse:
     """
     В этой вьюхе вам нужно вернуть 3 последних опубликованных поста.
     """
-    try:
-        posts = Post.objects.all().order_by('published_at')[:3]
-        reply = {'last 3 posts': [post.to_json() for post in posts]}
-        return JsonResponse(reply)
-    except Post.DoesNotExist:
+    posts = Post.objects.all().filter(status=PostStatus.published.value).order_by('published_at')
+    posts_len = len(posts)
+    if posts_len == 0:
         return HttpResponseNotFound('Your request resulted in no results')
+    elif posts_len == 1:
+        response = {'last published post': [post.to_json() for post in posts]}
+    elif posts_len == 2:
+        response = {'last 2 published posts': [post.to_json() for post in posts]}
+    else:
+        response = {'last 3 published posts': [post.to_json() for post in posts[-3:]]}
+    return JsonResponse(response)
 
 
 def posts_search_view(request: HttpRequest) -> HttpResponse | JsonResponse:
@@ -98,7 +103,7 @@ def posts_search_view(request: HttpRequest) -> HttpResponse | JsonResponse:
 
         if not query_results.exists():
             return HttpResponseNotFound('Your request resulted in no results')
-        
+
         else:
             response = make_reply(query_results)
             return JsonResponse(response)

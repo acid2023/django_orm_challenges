@@ -1,38 +1,13 @@
-from django.core.exceptions import ValidationError
 from django.db import models
-from enum import Enum
+from django.core.exceptions import ValidationError
 
-
-class LaptopBrand(Enum):
-    HP = "HP"
-    DELL = "Dell"
-    LENOVO = "Lenovo"
-    ASUS = "Asus"
-    ACER = "Acer"
-
-
-class LoremCategory(Enum):
-    quaerat = "quaerat"
-    etincidunt = 'etincidunt'
-    dolorem = 'dolorem'
-    modi = 'modi'
-    amet = 'amet'
-    none = None
-
-    @classmethod
-    def is_valid(cls, value: str) -> bool:
-        return value in [category.value for category in cls]
-
-    @classmethod
-    def validate_category(cls, value: str) -> None:
-        if not LoremCategory.is_valid(value):
-            raise ValidationError(f"{value} is not a valid category")
+from .models_choices import LaptopBrand, LoremCategory, PostStatus
 
 
 class Book(models.Model):
-    title: models.CharField = models.CharField(max_length=256)
-    author_full_name: models.CharField = models.CharField(max_length=256)
-    isbn: models.CharField = models.CharField(max_length=10)
+    title = models.CharField(max_length=256)
+    author_full_name = models.CharField(max_length=256)
+    isbn = models.CharField(max_length=10)
 
     def __str__(self) -> str:
         return self.title
@@ -58,21 +33,6 @@ class Laptop(models.Model):
         for field in self._meta.get_fields():
             json[field.name] = getattr(self, field.name)
         return json
-
-
-class PostStatus(Enum):
-    published = "published"
-    unpublished = "unpublished"
-    banned = "banned"
-
-    @classmethod
-    def is_valid(cls, value: str) -> bool:
-        return value in [status.value for status in cls]
-
-    @classmethod
-    def validate_status(cls, value: str) -> None:
-        if value not in [status.value for status in cls]:
-            raise ValidationError(f"{value} is not a valid status")
 
 
 class Post(models.Model):
