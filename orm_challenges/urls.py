@@ -7,7 +7,7 @@ from challenges.views.level_1.d_update_book import update_book_handler
 from challenges.views.level_2.a_laptops import laptop_details_view, laptop_in_stock_list_view, laptop_filter_view, \
     last_laptop_details_view
 from challenges.views.level_2.b_blog import last_posts_list_view, posts_search_view, untagged_posts_list_view, \
-    categories_posts_list_view, last_days_posts_list_view
+    categories_posts_list_view, last_days_posts_list_view, create_posts_view
 
 urlpatterns = [
     # level 1
@@ -21,6 +21,7 @@ urlpatterns = [
     path('laptops/in-stock/', laptop_in_stock_list_view),
     path('laptops/', laptop_filter_view),
     path('laptops/last/', last_laptop_details_view),
+    path('posts/create/', create_posts_view),
     path('posts/latest/', last_posts_list_view),
     path('posts/search/', posts_search_view),
     path('posts/untagged/', untagged_posts_list_view),
